@@ -1,0 +1,35 @@
+{% extends "common/base.html" %}
+
+{% block title %}
+<title>MovieToo | Payment</title>
+{% endblock %}
+
+{% block content %}
+
+<h1>Booking Details</h1>
+<div class="booking">
+	<form method="post" action="{% url 'payment_confirmation' %}">
+		{% csrf_token %}
+		<input type="hidden" id="show_id" name="show_id" value="{{ show.id }}">
+		<label for="movie">Movie:</label><br>
+		<input id="movie" name="movie" value="{{ show.movie }}" readonly style="width:500px;"><br>
+		<label for="theatre">Theatre:</label><br>
+		<input id="theatre" name="theatre" value="{{ show.theatre }}" readonly style="width:500px;"><br>
+		<label for="screen">Screen No:</label><br>
+		<input id="screen" name="screen" value="{{ show.screen }}" readonly style="width:500px;"><br>
+		<label for="showtime">Showtime:</label><br>
+		<input id="showtime" name="showtime" value="{{ show.time }}" readonly style="width:500px;"><br>
+		<label for="date">Date:</label><br>
+		<input id="date" name="date" value="{{ show.date }}" readonly style="width:500px;"><br>
+		<label for="selected_seat">Seats:</label><br>
+		<input id="selected_seat" name="selected_seat" value="{{ seats }}" readonly style="width:500px;"><br>
+		<label for="seat_type">Seat Type:</label><br>
+		<input id="seat_type" name="seat_type" value="{{ seat_type }}" readonly style="width:500px;"><br>
+		<label for="amount">Payable Amaount:</label><br>
+		<input id="amount" name="amount" value="{{ ticket_price }}" readonly style="width:500px;"><br>
+		<br>{{ form.as_p }}<br>
+		<button type="submit" class="btn btn-primary">Pay</button><br>
+	</form>
+</div>
+
+{% endblock %}

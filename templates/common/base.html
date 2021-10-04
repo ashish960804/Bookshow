@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+
+  {% load static %}
+  <style>
+    div.Platinum,
+    div.Gold,
+    div.Silver {
+      width: 2.5em;
+      border-top: 5px solid black;
+      border-left: 2px solid black;
+      border-right: 2px solid black;
+      margin: 5px;
+      text-align: center;
+    }
+
+    div.Platinum a,
+    div.Gold a,
+    div.Silver a {
+      color: black;
+      text-decoration: none;
+    }
+
+    div.seatDiv {
+      width: 80%;
+    }
+
+    div.seatArray {
+      width: 80%;
+      float: left;
+    }
+
+    div.seatForm {
+      width: 20%;
+      float: left;
+    }
+
+    div.selectable {
+      border-top: 5px solid green !important;
+      border-left: 2px solid green !important;
+      border-right: 2px solid green !important;
+    }
+
+    div.selectable a {
+      color: green !important;
+      cursor: pointer !important;
+    }
+
+    div.selected {
+      border-top: 3px solid blue !important;
+      border-left: 1px solid blue !important;
+      border-right: 1px solid blue !important;
+    }
+
+    div.selected a {
+      color: blue !important;
+      cursor: pointer !important;
+    }
+
+    /*START: override bootsrtap styles*/
+
+    .navbar-static-top {
+      z-index: 99 !important;
+    }
+
+    .ui-widget-overlay {
+      background-color: black !important;
+      opacity: 0.5 !important;
+    }
+
+    .thumbnail img {
+      min-height: 250px;
+      height: 250px !important;
+      width: 350px !important;
+    }
+
+    .carousel-img {
+      min-height: 80vh;
+      height: 80vh !important;
+      width: 100vw !important;
+    }
+
+    div#myCarousel {
+      height: 70vh;
+      width: 80vw;
+      margin-left: 10vw;
+      margin-right: 10vw;
+      margin-bottom: 12vh;
+    }
+
+    ol.carousel-indicators {
+      top: 75vh !important;
+    }
+
+    div.carousel-caption {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .media-left img {
+      width: 120px !important;
+      height: 120px !important;
+    }
+
+    /*END: override bootsrtap styles*/
+
+    .forms {
+      background-color: #f2f2f2;
+      padding: 10px;
+      margin: 5px;
+    }
+    
+  </style>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+  <!-- link rel="stylesheet" type='text/css' href= '{% static "css/style.css" %}'-->
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+  {# Load the tag library #}
+  {% load bootstrap3 %}
+
+  {# Load CSS and JavaScript #}
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+
+  {# Display django.contrib.messages as Bootstrap alerts #}
+  {% bootstrap_messages %}
+
+  <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+  {% block title %}
+  {% endblock %}
+  <!-- script src='{% static "js/common.js" %}'></script-->
+  <script>
+    $(function () {
+      signIn = $("#loginModal").dialog({
+        autoOpen: false,
+        resizable: false,
+        title: "Sign In",
+        height: 250,
+        width: 400,
+        modal: true
+      });
+      $("#signIn").on("click", function () {
+        signIn.dialog("open");
+      });
+
+
+      setCity = $("#cityModal").dialog({
+        autoOpen: false,
+        resizable: false,
+        title: "Select City",
+        height: 100,
+        width: 450,
+        modal: true,
+      });
+      $("#selectCity").on("click", function () {
+        setCity.dialog("open");
+      });
+    });
+
+    function watchTrailer(name, url) {
+      html = '<iframe width="1165" height="545" src="' + url + '" frameborder="0" allowfullscreen></iframe>';
+      $('<div />').html(html).dialog({
+        resizable: false,
+        height: 600,
+        title: name,
+        width: 1200,
+        modal: true,
+        close: function () { $(this).remove() }
+      });
+    }
+
+    function createSeatArray() {
+      var seats_per_row = 15;
+      var seats = { 'Platinum': 2, 'Gold': 2, 'Silver': 6 };
+      var rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
+      var seat_array = "<div id='seat_array'>";
+      var count = 0;
+      for (var key in seats) {
+        seat_array += "<table class='" + key + "'>";
+        for (var i = 0; i < seats[key]; i++) {
+          seat_array += "<tr class='" + rows[count] + "'>";
+          for (var j = 1; j <= seats_per_row; j++) {
+            seat_array += "<td><div class='" + key + "'><a>" + rows[count] + j + "</a></div></td>";
+          }
+          seat_array += "</tr>";
+          count++;
+        }
+        seat_array += "</table>";
+      }
+      seat_array += "</div>"
+      return seat_array;
+    }
+
+    $(document).ready(function () {
+
+      if (localStorage.getItem('user_city') != null) {
+        $('#selectCity').html(localStorage.getItem('user_city'));
+      }
+
+      $('#cityModal a').click(function (e) {
+        var city = $(e.target).text();
+        localStorage.setItem("user_city", city);
+        $('#selectCity').html(localStorage.getItem('user_city'));
+        setCity.dialog("close");
+      });
+
+      //create seat array
+      $('.seatArray').append(createSeatArray());
+
+      //show available seats of particular type
+      $('#id_seat_type').change(function () {
+        seat_dict = {};
+        $('#selected_seat').attr('value', '');
+        $('.selectable').removeClass('selectable selected');
+        var selector = $(this).val();
+        $('table.' + selector + ' td div').addClass('selectable');
+      });
+
+      var seat_dict = {};
+
+      //change color of selected seat
+      $(document).on('click', 'div.selectable', function () {
+        var curr_seat = $(this).text();
+        if (curr_seat in seat_dict) {
+          delete seat_dict[curr_seat];
+        }
+        else {
+          seat_dict[curr_seat] = curr_seat;
+        }
+        $(this).toggleClass('selected');
+        var selected_seat = [];
+        for (var key in seat_dict) {
+          selected_seat.push(key);
+        }
+        $('input#selected_seat').attr('value', selected_seat);
+        $('#no_of_seats').text(selected_seat.length);
+      });
+    });
+
+  </script>
+
+  <title>MovieToo - Online Ticket Booking Website</title>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        MovieToo
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/about/">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/movies/">Movies</a>
+          </li>
+          <li>
+            <a class="nav-link active" aria-current="page" href="/theatre/">Theatres</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/contact/">Contact</a>
+          </li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right me-auto mb-2 mb-lg-0">
+          {% if user.is_authenticated %}
+          <li class="active"><a href="/accounts/logout/">Sign Out</a></li>
+          {% else %}
+          <li class="nav-item">
+          <li class="active"><a href="#" id="signIn" role="button">Sign In</a></li>
+          </li>
+          <li class="nav-item">
+            <a class="active" href="/accounts/register/" id="register" role="button">Register</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Optional JavaScript; choose one of the two! -->
+
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+    crossorigin="anonymous"></script>
+
+  <!-- Option 2: Separate Popper and Bootstrap JS -->
+  <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-W8fXfP3gkOKtndU4JGtKDvXbO53Wy8SZCQHczT5FMiiqmQfUpWbYdTil/SxwZgAN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js" integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/" crossorigin="anonymous"></script>
+    -->
+  <div id="loginModal">
+    {% block login_holder %}
+    <form id="login_form" method="post" action="/accounts/login/">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}{{ request.path }}{% endif %}" />
+      <div class="form-group">
+        <label>Username: </label>
+        <input type="text" class="form-control" name="username" value="" size="50">
+      </div>
+      <div class="form-group">
+        <label>Password: </label>
+        <input type="password" class="form-control" name="password" value="" size="50">
+      </div>
+      <div class="pull-right">
+        <a role="button" href="/accounts/register/" class="btn btn-default">Register</a>
+        <input class="btn btn-primary" type="submit" value="Sign In" />
+      </div>
+    </form>
+    {% endblock %}
+  </div>
+  <div id="content" class="container-fluid">
+    {% block content %}
+    {% endblock %}
+  </div>
+
+  <div class="b-example-divider"></div>
+
+  <div class="container">
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+      <div class="col-md-4 d-flex align-items-center">
+        <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+          <svg class="bi" width="30" height="24">
+            <use xlink:href="#bootstrap" />
+          </svg>
+        </a>
+        <span class="text-muted">&copy; 2021 Company, Inc</span>
+      </div>
+
+      <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+        <li class="nav-item"><a href="/" class="nav-link active">Home</a></li>
+        <li class="nav-item"><a href="/about/" class="nav-link active">About Us</a></li>
+        <li class="nav-item"><a href="/contact/" class="nav-link active">Contact</a></li>
+      </ul>
+    </footer>
+  </div>
+
+</body>
+
+</html>

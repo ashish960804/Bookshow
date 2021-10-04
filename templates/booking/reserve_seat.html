@@ -1,0 +1,33 @@
+{% extends "common/base.html" %}
+
+{% block title %}
+<title>MovieToo | Reserve Seats</title>
+{% endblock %}
+
+{% block content %}
+
+<h1>Show Details</h1>
+<h2>{{ show_info }}</h2>
+<div class="seatDiv">
+	<div class="seatArray">
+	</div>
+	<div class="seatForm">
+		<form method="post" action="{% url 'payment_gateway' %}">
+			{% csrf_token %}
+			<br>{{ form.as_p }}<br>
+			<div class="row mb-3">
+				<label for="selected_seat" class="col-sm-2 col-form-label">Seats:</label>
+				<div class="col-sm-10">
+					<input name="selected_seat" type="text" class="form-control" id="selected_seat"
+						placeholder="Seat Number">
+				</div>
+			</div>
+			<br>
+			<span>Total number of seats: </span><span id="no_of_seats" readonly>0</span>
+			<input type="hidden" name="show_id" id="show_id" value="{{ show_info.id }}" readonly /><br>
+			<br><button type="submit" class="btn btn-secondary">Confirm</button><br>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
